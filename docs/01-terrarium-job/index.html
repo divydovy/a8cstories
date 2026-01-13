@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Terrarium Job - An A8C Story</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0675C4 0%, #005082 100%);
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .header a {
+            color: #ffffff;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .header a:hover {
+            opacity: 0.7;
+            text-decoration: underline;
+        }
+
+        .comic-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .comic-viewer {
+            background: #2a2a2a;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .comic-page {
+            display: none;
+            width: 100%;
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .comic-page.active {
+            display: block;
+        }
+
+        .comic-page img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            background: #0675C4;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls button:hover:not(:disabled) {
+            background: #3b9dd6;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls button:disabled {
+            background: #444;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .page-info {
+            flex: 1;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #fff;
+            min-width: 200px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            color: #3b9dd6;
+            font-weight: 600;
+        }
+
+        .keyboard-hint {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            opacity: 0.6;
+        }
+
+        .thumbnail-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #444;
+        }
+
+        .thumbnail {
+            cursor: pointer;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+            border: 3px solid transparent;
+            position: relative;
+        }
+
+        .thumbnail:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(127, 84, 179, 0.4);
+        }
+
+        .thumbnail.active {
+            border-color: #0675C4;
+            box-shadow: 0 0 20px rgba(127, 84, 179, 0.6);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .thumbnail .page-number {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: rgba(127, 84, 179, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .about {
+            max-width: 800px;
+            margin: 3rem auto;
+            padding: 2rem;
+            background: #2a2a2a;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .about h2 {
+            color: #0675C4;
+            margin-bottom: 1rem;
+        }
+
+        .about p {
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .controls button {
+                width: 100%;
+            }
+
+            .page-info {
+                order: -1;
+            }
+
+            .thumbnail-strip {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>The Terrarium Job</h1>
+        <p><a href="../">An A8C Story</a></p>
+    </div>
+
+    <div class="comic-container">
+        <div class="comic-viewer">
+            <div id="comic-pages">
+                <!-- Pages will be loaded dynamically -->
+            </div>
+
+            <div class="page-title" id="page-title"></div>
+
+            <div class="controls">
+                <button id="prev-btn" onclick="previousPage()">← Previous</button>
+                <div class="page-info">
+                    Page <span id="current-page">1</span> of <span id="total-pages">14</span>
+                </div>
+                <button id="next-btn" onclick="nextPage()">Next →</button>
+            </div>
+
+            <div class="keyboard-hint">
+                Use ← → arrow keys or click thumbnails to navigate
+            </div>
+
+            <div class="thumbnail-strip" id="thumbnails">
+                <!-- Thumbnails will be loaded dynamically -->
+            </div>
+        </div>
+
+        <div class="about">
+            <h2>About This Story</h2>
+            <p>
+                <strong>The Terrarium Job</strong> follows Alex, who wakes up with an idea for modular terrariums
+                and launches a live store the same day with Woo's help. By the end of eight months, they're running
+                a thriving business with employees and subscribers.
+            </p>
+            <p>
+                This is a vision story—an exploration of what's possible when AI assistance and commerce infrastructure
+                get out of your way. It imagines a future where the only barrier between idea and revenue is
+                the quality of your idea itself.
+            </p>
+            <p>
+                <strong>Created:</strong> January 2026<br>
+                <strong>Story by:</strong> Dave Lockie<br>
+                <strong>Art:</strong> Gemini 2.5 Flash Image<br>
+                <strong>Format:</strong> 14-page graphic novel
+            </p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>© 2026 A8C Stories • Made with ❤️ and AI</p>
+    </div>
+
+    <script>
+        const pages = [
+            { num: 1, title: "The Morning It Clicked", image: "../../01_the_terrarium_job/pages/page_01.png" },
+            { num: 2, title: "Talking It Through", image: "../../01_the_terrarium_job/pages/page_02.png" },
+            { num: 3, title: "The Store Comes Alive", image: "../../01_the_terrarium_job/pages/page_03.png" },
+            { num: 4, title: "First Print", image: "../../01_the_terrarium_job/pages/page_04.png" },
+            { num: 5, title: "The First Order", image: "../../01_the_terrarium_job/pages/page_05.png" },
+            { num: 6, title: "Momentum Builds", image: "../../01_the_terrarium_job/pages/page_06.png" },
+            { num: 7, title: "The Engine Awakens", image: "../../01_the_terrarium_job/pages/page_07.png" },
+            { num: 8, title: "Going Global", image: "../../01_the_terrarium_job/pages/page_08.png" },
+            { num: 9, title: "Real Business", image: "../../01_the_terrarium_job/pages/page_09.png" },
+            { num: 10, title: "The Living Dashboard", image: "../../01_the_terrarium_job/pages/page_10.png" },
+            { num: 11, title: "The Next Evolution", image: "../../01_the_terrarium_job/pages/page_11.png" },
+            { num: 12, title: "Subscription Launch", image: "../../01_the_terrarium_job/pages/page_12.png" },
+            { num: 13, title: "The Numbers", image: "../../01_the_terrarium_job/pages/page_13.png" },
+            { num: 14, title: "The Cycle", image: "../../01_the_terrarium_job/pages/page_14.png" }
+        ];
+
+        let currentPage = 1;
+
+        function loadPages() {
+            const container = document.getElementById('comic-pages');
+            const thumbnailsContainer = document.getElementById('thumbnails');
+
+            pages.forEach((page, index) => {
+                // Create main page
+                const pageDiv = document.createElement('div');
+                pageDiv.className = `comic-page ${index === 0 ? 'active' : ''}`;
+                pageDiv.id = `page-${page.num}`;
+
+                const img = document.createElement('img');
+                img.src = page.image;
+                img.alt = `Page ${page.num}: ${page.title}`;
+                img.loading = 'lazy';
+
+                pageDiv.appendChild(img);
+                container.appendChild(pageDiv);
+
+                // Create thumbnail
+                const thumbnail = document.createElement('div');
+                thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+                thumbnail.onclick = () => goToPage(page.num);
+
+                const thumbImg = document.createElement('img');
+                thumbImg.src = page.image;
+                thumbImg.alt = `Page ${page.num}`;
+                thumbImg.loading = 'lazy';
+
+                const pageNumber = document.createElement('div');
+                pageNumber.className = 'page-number';
+                pageNumber.textContent = page.num;
+
+                thumbnail.appendChild(thumbImg);
+                thumbnail.appendChild(pageNumber);
+                thumbnailsContainer.appendChild(thumbnail);
+            });
+
+            document.getElementById('total-pages').textContent = pages.length;
+            updatePageTitle();
+        }
+
+        function goToPage(pageNum) {
+            if (pageNum < 1 || pageNum > pages.length) return;
+
+            // Hide all pages
+            document.querySelectorAll('.comic-page').forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // Show current page
+            document.getElementById(`page-${pageNum}`).classList.add('active');
+
+            // Update thumbnails
+            document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === pageNum - 1);
+            });
+
+            currentPage = pageNum;
+            document.getElementById('current-page').textContent = currentPage;
+            updatePageTitle();
+            updateButtons();
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updatePageTitle() {
+            const page = pages[currentPage - 1];
+            document.getElementById('page-title').textContent = page.title;
+        }
+
+        function updateButtons() {
+            document.getElementById('prev-btn').disabled = currentPage === 1;
+            document.getElementById('next-btn').disabled = currentPage === pages.length;
+        }
+
+        function previousPage() {
+            if (currentPage > 1) {
+                goToPage(currentPage - 1);
+            }
+        }
+
+        function nextPage() {
+            if (currentPage < pages.length) {
+                goToPage(currentPage + 1);
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                previousPage();
+            } else if (e.key === 'ArrowRight') {
+                nextPage();
+            }
+        });
+
+        // Load pages on init
+        loadPages();
+    </script>
+</body>
+</html>
