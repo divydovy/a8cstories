@@ -26,8 +26,10 @@ git push -u origin main
 4. Under "Build and deployment":
    - **Source:** Deploy from a branch
    - **Branch:** `main`
-   - **Folder:** `/docs`
+   - **Folder:** **`/ (root)`** ← Important: Use root, not /docs
 5. Click **Save**
+
+**Why root?** Images are stored at project root (`01_the_terrarium_job/pages/`). Serving from root allows access to both `/docs/` pages and root-level assets.
 
 ## Step 3: Wait & Access
 
@@ -41,27 +43,29 @@ git push -u origin main
 
 ### Images not loading?
 
-**Problem:** Paths don't work on GitHub Pages
+**Problem:** Images return 404 errors
 
-**Solution:** Image paths are relative from `/docs/index.html`:
-```
-../01_the_terrarium_job/pages/page_01.png
+**Solution:** Use absolute paths from repo root. For repo `divydovy/a8cstories`:
+```javascript
+// Correct - absolute path with repo name
+image: "/a8cstories/01_the_terrarium_job/pages/page_01.png"
+
+// Incorrect - relative paths don't work
+image: "../../01_the_terrarium_job/pages/page_01.png"
 ```
 
-This works because:
-- `docs/index.html` (your HTML)
-- `01_the_terrarium_job/pages/` (your images)
-- Both are at the same level in the repo
+GitHub Pages serves your repo at `username.github.io/repo-name/`, so absolute paths must include the repo name.
 
 ### 404 Error?
 
-**Problem:** GitHub Pages shows 404
+**Problem:** GitHub Pages shows 404 or README
 
 **Solutions:**
-1. Check `/docs` folder is selected in Settings → Pages
-2. Ensure `index.html` exists in `/docs/` folder
+1. Check **`/ (root)`** is selected in Settings → Pages (not `/docs`)
+2. Ensure root `index.html` redirects to `/docs/`
 3. Wait 2-3 minutes after enabling Pages
 4. Hard refresh browser (Cmd+Shift+R or Ctrl+Shift+R)
+5. Clear browser cache if still seeing old content
 
 ### CSS/JS not working?
 
@@ -87,11 +91,15 @@ Want `comic.yourdomain.com` instead of GitHub URL?
 Before pushing, test locally:
 
 ```bash
-cd docs
+# Run from project root (not docs folder)
 python3 -m http.server 8000
 ```
 
-Visit: http://localhost:8000
+Visit:
+- Library: http://localhost:8000/docs/
+- Story: http://localhost:8000/docs/01-terrarium-job/
+
+**Note:** Must run from project root so images at `01_the_terrarium_job/pages/` are accessible.
 
 Press Ctrl+C to stop server.
 
@@ -109,14 +117,16 @@ GitHub Pages auto-deploys in 1-2 minutes.
 
 ---
 
-**Your site will be at:**
-```
-https://YOUR-USERNAME.github.io/woo-stories/
-```
+## Current Deployment
 
-**Comic reader features:**
-- ✅ 14 pages with navigation
-- ✅ Thumbnail strip
+**Repository:** https://github.com/divydovy/a8cstories
+**Live Site:** https://divydovy.github.io/a8cstories/
+
+**Site features:**
+- ✅ Multi-story library structure
+- ✅ 14-page interactive comic reader
+- ✅ Thumbnail navigation
 - ✅ Keyboard shortcuts (← →)
-- ✅ Mobile-friendly
-- ✅ WooCommerce branding
+- ✅ Mobile-friendly responsive design
+- ✅ Automattic brand colors
+- ✅ No build process required
